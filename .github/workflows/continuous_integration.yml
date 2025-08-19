@@ -61,7 +61,20 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libvorbis-dev libsdl2-dev
+          sudo apt-get install -y imagemagick libvorbis-dev libsdl2-dev
+
+      - name: Install required tools (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: choco install imagemagick
+
+      - name: Install required tools (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          brew install imagemagick --with-librsvg
+          curl -L https://github.com/kindlychung/genicon/releases/latest/download/genicon.zip
+          unzip -d dist/mac/ genicon.zip && rm genicon.zip
 
       - name: Set up cmake build preset
         shell: bash
@@ -73,6 +86,19 @@ jobs:
           fi
           echo "Using preset ${CMAKE_PRESET}."
           echo "CMAKE_PRESET=${CMAKE_PRESET}" >> $GITHUB_ENV
+
+      - name: Generate macOS and Windows icons
+        if: runner.os != 'Linux'
+        shell: bash
+        run: |
+          if [[ ${{ runner.os }} == "Windows" ]]; then
+            magick \
+              -density 256x256 -background transparent \
+              dist/linux/io.github.henrique194.chocolate-quake.svg \
+              -define icon:auto-resize -colors 256 dist/win/quake.ico
+          elif [[ ${{ runner.os }} == "macOS" ]]; then
+            dist/mac/genicon --mac dist/linux/io.github.henrique194.chocolate-quake.svg dist/mac/iconset.icns
+          fi
 
       - name: Setup GCC/G++ (Windows)
         if: runner.os == 'Windows'

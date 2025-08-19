@@ -122,7 +122,7 @@ if(WIN32)
         "${PROJECT_VERSION_PATCH}, "
         "0"
     )
-    set(WIN_DIR "${CMAKE_SOURCE_DIR}/win")
+    set(WIN_DIR "${CMAKE_SOURCE_DIR}/dist/win")
     set(RC_NAME "quake.rc")
     set(RC_INPUT_FILE "${WIN_DIR}/${RC_NAME}.in")
     set(RC_OUTPUT_FILE "${CMAKE_CURRENT_BINARY_DIR}/${RC_NAME}")
@@ -151,4 +151,11 @@ if(MSVC)
         LINK_FLAGS
         "/MANIFEST:NO"
     )
+endif()
+
+if(APPLE)
+    set_target_properties("${PACKAGE_TARNAME}" PROPERTIES MACOSX_BUNDLE ON)
+    set(MACOSX_BUNDLE_ICON_FILE icon.icns)
+    set(app_icon_macos "${CMAKE_SOURCE_DIR}/mac/icon.icns")
+    set_source_files_properties(${app_icon_macos} PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
 endif()
